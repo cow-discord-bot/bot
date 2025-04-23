@@ -1,7 +1,7 @@
 use poise::CreateReply;
 use serenity::all::{CreateMessage, User};
 
-use crate::logging::utils::{LogType, log_event};
+use crate::utils::guild_logs::{LogType, log_event};
 use crate::{Context, Error};
 
 #[poise::command(prefix_command, slash_command)]
