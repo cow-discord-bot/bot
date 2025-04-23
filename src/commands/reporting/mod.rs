@@ -2,4 +2,3 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
 pub mod report_user_command;
-pub mod test_command;
