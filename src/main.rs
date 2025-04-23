@@ -1,4 +1,5 @@
 mod commands;
+mod logging;
 
 use std::env::var;
 use std::sync::Arc;
