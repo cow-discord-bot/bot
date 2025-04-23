@@ -1,10 +1,10 @@
 use std::env::var;
 
 use dotenv::dotenv;
-use poise::{ApplicationContext, CreateReply, Modal};
+use poise::{CreateReply, Modal};
 use serenity::all::{ChannelId, CreateEmbed, CreateMessage, Message};
 
-use crate::{Data, Error, ExpectError};
+use crate::{ApplicationContext, Error, ExpectError};
 
 #[derive(Debug, Modal)]
 struct ReportModal {
@@ -17,7 +17,7 @@ struct ReportModal {
 	ephemeral = true
 )]
 pub async fn report_message(
-	ctx: ApplicationContext<'_, Data, Error>,
+	ctx: ApplicationContext<'_>,
 	#[description = "Reported message"] message: Message,
 ) -> Result<(), Error> {
 	use poise::Modal as _;

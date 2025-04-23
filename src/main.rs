@@ -6,11 +6,12 @@ use std::time::Duration;
 
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
-use types::{Context, Error};
+use types::{ApplicationContext, Context, Error};
 
 mod types {
 	pub type Error = Box<dyn std::error::Error + Send + Sync>;
 	pub type Context<'a> = poise::Context<'a, super::Data, Error>;
+	pub type ApplicationContext<'a> = poise::ApplicationContext<'a, super::Data, Error>;
 }
 
 pub struct Data {}
