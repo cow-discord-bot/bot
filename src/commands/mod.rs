@@ -4,5 +4,5 @@
 pub mod reporting;
 
 pub fn get_all_commands() -> Vec<poise::Command<crate::Data, crate::types::Error>> {
-    vec![reporting::report_user_command::report_user()]
+    vec![reporting::report_message_command::report_message(), reporting::report_user_command::report_user()]
 }
