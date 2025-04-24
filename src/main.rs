@@ -1,3 +1,4 @@
+mod background;
 mod commands;
 mod utils;
 
@@ -5,10 +6,10 @@ use std::env::var;
 use std::sync::Arc;
 use std::time::Duration;
 
+use background::guild_logs::Handler;
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
 use types::{ApplicationContext, Context, Error};
-use utils::guild_logs::Handler;
 
 mod types {
 	pub type Error = Box<dyn std::error::Error + Send + Sync>;
