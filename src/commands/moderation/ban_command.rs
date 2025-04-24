@@ -1,7 +1,6 @@
 use poise::CreateReply;
 use serenity::all::{CreateMessage, User};
 
-use crate::utils::guild_logs::{LogType, log_event};
 use crate::{Context, Error};
 
 #[poise::command(prefix_command, slash_command)]
@@ -71,13 +70,11 @@ async fn send_ban_reason_dm(
 		user.dm(
 			ctx.serenity_context(),
 			CreateMessage::new().content(format!(
-				"You have been banned from **{}**.\n**Reason**: {}",
+				"**{}**: You have been banned.\n**Reason**: {}",
 				guild_name, reason
 			)),
 		)
 		.await?;
 	}
-
-	log_event(&ctx, LogType::Ban, "test".to_string()).await?;
 	Ok(())
 }
