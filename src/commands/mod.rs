@@ -5,5 +5,5 @@ pub mod moderation;
 pub mod reporting;
 
 pub fn get_all_commands() -> Vec<poise::Command<crate::Data, crate::Error>> {
-    vec![moderation::ban_command::ban(), reporting::report_message_command::report_message(), reporting::report_user_command::report_user()]
+    vec![moderation::ban_command::ban(), moderation::unban_command::unban(), reporting::report_message_command::report_message(), reporting::report_user_command::report_user()]
 }
