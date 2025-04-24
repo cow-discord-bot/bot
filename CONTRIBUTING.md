@@ -46,3 +46,24 @@ pub async fn example(
 }
 ```
 This will now be automatically generated as a command upon running thanks to [build.rs](crates/bot/src/build.rs)
+
+### How to add an api endpoint
+Very similar to how you add a command
+- Add a file ending with `_endpoint` in `crates/api/src/endpoints/` or a subdirectory of that
+- Create a function in that file with the same name as the file, excluding the `_endpoint`
+
+for example: this would be `crates/api/src/endpoints/nested_dir/nested_dir/example_endpoint.rs`
+```rust
+use axum::Router;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum::routing::post;
+
+pub fn test() -> Router { Router::new().route("/example", post(handle_request)) }
+
+async fn handle_request() -> impl IntoResponse {
+	(StatusCode::OK, "this endpoint is an example!".to_string())
+}
+
+```
+This will now be automatically generated as an endpoint upon running thanks to [build.rs](crates/api/src/build.rs)
