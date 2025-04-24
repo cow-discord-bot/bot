@@ -28,11 +28,11 @@ cargo run
 ```
 
 ### How to add a command
-- Add a file ending with `_command` in `src/commands/` or a subdirectory of that
+- Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
 - Create a function in that file with the same name as the file, excluding the `_command`
 - Make sure your command include poise macro to define what kind of command it is, and takes a context param
 
-for example: this would be `src/commands/nested_dir/nested_dir/example_command.rs`
+for example: this would be `crates/bot/src/commands/nested_dir/nested_dir/example_command.rs`
 ```rust
 use crate::{Context, Error};
 
@@ -45,4 +45,4 @@ pub async fn example(
     Ok(())
 }
 ```
-This will now be automatically generated as a command upon running thanks to [build.rs](build.rs)
+This will now be automatically generated as a command upon running thanks to [build.rs](crates/bot/src/build.rs)
