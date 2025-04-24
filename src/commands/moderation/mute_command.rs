@@ -16,7 +16,7 @@ use serenity::prelude::*;
 
 use crate::{Context, Error};
 
-#[poise::command(prefix_command, slash_command)]
+#[poise::command(prefix_command, slash_command, aliases("timeout"), guild_only)]
 pub async fn mute(
 	ctx: Context<'_>,
 	#[description = "User to mute"] user: User,

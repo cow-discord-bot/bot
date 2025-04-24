@@ -3,7 +3,7 @@ use serenity::all::{CreateMessage, User};
 
 use crate::{Context, Error};
 
-#[poise::command(prefix_command, slash_command)]
+#[poise::command(prefix_command, slash_command, guild_only)]
 pub async fn ban(
 	ctx: Context<'_>,
 	#[description = "User to ban"] user: User,

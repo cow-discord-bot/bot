@@ -3,7 +3,7 @@ use serenity::all::{CreateMessage, User};
 
 use crate::{Context, Error};
 
-#[poise::command(prefix_command, slash_command)]
+#[poise::command(prefix_command, slash_command, guild_only)]
 pub async fn kick(
 	ctx: Context<'_>,
 	#[description = "User to kick"] user: User,
