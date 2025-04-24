@@ -21,7 +21,9 @@ use crate::{Context, Error};
 pub async fn mute(
 	ctx: Context<'_>,
 	#[description = "User to mute"] user: User,
-	#[description = "Reason"] reason: Option<String>,
+	#[rest]
+	#[description = "Reason"]
+	reason: Option<String>,
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 

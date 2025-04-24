@@ -8,7 +8,9 @@ use crate::{Context, Error};
 pub async fn kick(
 	ctx: Context<'_>,
 	#[description = "User to kick"] user: User,
-	#[description = "Reason"] reason: Option<String>,
+	#[rest]
+	#[description = "Reason"]
+	reason: Option<String>,
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 

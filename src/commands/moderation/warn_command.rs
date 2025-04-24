@@ -11,7 +11,9 @@ use crate::{Context, Error};
 pub async fn warn(
 	ctx: Context<'_>,
 	#[description = "User to warn"] user: User,
-	#[description = "Reason"] reason: Option<String>,
+	#[rest]
+	#[description = "Reason"]
+	reason: Option<String>,
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 

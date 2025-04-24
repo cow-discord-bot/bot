@@ -8,8 +8,9 @@ use crate::{Context, Error};
 pub async fn ban(
 	ctx: Context<'_>,
 	#[description = "User to ban"] user: User,
-	#[description = "Reason"] reason: Option<String>,
-	#[description = "Delete messages?"] delete_messages: Option<bool>,
+	#[rest]
+	#[description = "Reason"]
+	reason: Option<String>,
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
@@ -17,23 +18,13 @@ pub async fn ban(
 		.guild_id()
 		.ok_or("This command can only be used in a guild")?;
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
-	let delete_days = if delete_messages.unwrap_or(false) {
-		7
-	} else {
-		0
-	};
 
 	let mut dm_result = send_ban_reason_dm(ctx, &user, reason_text).await;
 
 	let mut response = String::new();
 
 	match guild_id
-		.ban_with_reason(
-			&ctx.serenity_context().http,
-			user.id,
-			delete_days,
-			reason_text,
-		)
+		.ban_with_reason(&ctx.serenity_context().http, user.id, 0, reason_text)
 		.await
 	{
 		| Ok(_) => {
@@ -60,7 +51,7 @@ pub async fn ban(
 	Ok(())
 }
 
-async fn send_ban_reason_dm(
+pub async fn send_ban_reason_dm(
 	ctx: Context<'_>,
 	user: &User,
 	reason: &str,
