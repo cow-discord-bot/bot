@@ -132,7 +132,7 @@ fn main() {
 
 		if *dir == base_path {
 			mod_content.push_str(&format!(
-                "\n\npub fn get_all_commands() -> Vec<poise::Command<crate::Data, crate::Error>> {{\n    vec![{}]\n}}",
+                "\n\npub fn get_all_commands() -> Vec<poise::Command<crate::Data, crate::Error>> {{\n\tvec![{}]\n}}",
                 function_entries.join(", ")
             ));
 		}
