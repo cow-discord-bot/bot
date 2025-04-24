@@ -8,6 +8,7 @@ use std::time::Duration;
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
 use types::{ApplicationContext, Context, Error};
+use utils::guild_logs::Handler;
 
 mod types {
 	pub type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -100,10 +101,12 @@ async fn main() {
 
 	let token = var("BOT_TOKEN")
 		.expect_error("Missing `BOT_TOKEN` env var, please include this in your .env file");
+
 	let intents =
 		serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT;
 
 	let client = serenity::ClientBuilder::new(token, intents)
+		.raw_event_handler(Handler)
 		.framework(framework)
 		.await;
 

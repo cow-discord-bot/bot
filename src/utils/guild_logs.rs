@@ -1,73 +1,75 @@
-use std::env::var;
+use std::env;
 
-use serenity::all::{ChannelId, Color, CreateEmbed, CreateMessage};
+use poise::serenity_prelude::Context;
+use serenity::all::{ChannelId, Color, CreateEmbed, CreateMessage, Event, RawEventHandler};
 
-use crate::{Context, Error};
+use crate::utils::mention::Mentionable;
 
-#[derive(Debug)]
-pub enum LogType {
-	MessageSent,
-	MessageDeleted,
-	MessageEdited,
-	ReactionAdded,
-	ReactionRemoved,
-	EmbedDeleted,
-	AttachmentDeleted,
-	VoiceJoined,
-	VoiceLeft,
-	UserJoined,
-	UserLeft,
-	Ban,
-	Kick,
-	Mute,
+pub struct Handler;
+
+fn get_channel_id(env_key: &str) -> Option<ChannelId> {
+	let id_str = env::var(env_key).ok()?;
+	let id = id_str.parse().ok()?;
+	Some(ChannelId::new(id))
 }
 
-pub async fn log_event(
-	ctx: &Context<'_>,
-	log_type: LogType,
-	content: impl Into<String>,
-) -> Result<(), Error> {
-	let message_log_channel = ChannelId::new(var("MESSAGE_LOGS_CHANNEL_ID")?.parse()?);
-	let member_log_channel = ChannelId::new(var("MEMBER_LOGS_CHANNEL_ID")?.parse()?);
-	let mod_log_channel = ChannelId::new(var("MODERATION_LOGS_CHANNEL_ID")?.parse()?);
+#[serenity::async_trait]
+impl RawEventHandler for Handler {
+	async fn raw_event(
+		&self,
+		ctx: Context,
+		new_event: Event,
+	) {
+		use serenity::model::event::Event::*;
 
-	let (channel_id, title, color) = match log_type {
-		| LogType::MessageSent => (message_log_channel, "Message Sent", Color::DARK_GREEN),
-		| LogType::MessageDeleted => (message_log_channel, "Message Deleted", Color::RED),
-		| LogType::MessageEdited => (message_log_channel, "Message Edited", Color::ORANGE),
-		| LogType::ReactionAdded => (message_log_channel, "Reaction Added", Color::DARK_GREEN),
-		| LogType::ReactionRemoved => (message_log_channel, "Reaction Removed", Color::DARK_ORANGE),
-		| LogType::EmbedDeleted => (message_log_channel, "Embed Removed", Color::RED),
-		| LogType::AttachmentDeleted => (message_log_channel, "Attachment Removed", Color::RED),
+		let (channel, title, color, fields) = match new_event {
+			| MessageCreate(ref e) => {
+				let Some(channel) = get_channel_id("MESSAGE_LOGS_CHANNEL_ID") else {
+					return;
+				};
+				let user = &e.message.author;
 
-		| LogType::VoiceJoined => (
-			message_log_channel,
-			"User Joined Voice Channel",
-			Color::DARK_GREEN,
-		),
-		| LogType::VoiceLeft => (
-			message_log_channel,
-			"User Left Voice Channel",
-			Color::DARK_ORANGE,
-		),
+				// todo dont hardcode
+				if (user.id.to_string() == "1242367482346606633") {
+					return;
+				}
 
-		| LogType::UserJoined => (member_log_channel, "User Joined Server", Color::DARK_GREEN),
-		| LogType::UserLeft => (member_log_channel, "User Left Server", Color::DARK_RED),
+				let content = &e.message.content;
+				(
+					channel,
+					"Message Sent",
+					Color::BLURPLE,
+					vec![
+						("User", user.mention().to_string(), true),
+						("Content", content.clone(), false),
+					],
+				)
+			},
+			| GuildBanAdd(event) => {
+				let Some(channel) = get_channel_id("MODERATION_LOGS_CHANNEL_ID") else {
+					return;
+				};
+				(
+					channel,
+					"User Banned",
+					Color::RED,
+					vec![
+						("Guild", event.guild_id.to_string(), true),
+						("User", event.user.mention().to_string(), true),
+					],
+				)
+			},
+			| _ => return,
+		};
 
-		| LogType::Ban => (mod_log_channel, "User Banned", Color::RED),
-		| LogType::Kick => (mod_log_channel, "User Kicked", Color::RED),
-		| LogType::Mute => (mod_log_channel, "User Muted", Color::DARK_GREY),
-	};
+		let embed = CreateEmbed::new()
+			.title(title)
+			.colour(color)
+			.fields(fields)
+			.timestamp(serenity::model::Timestamp::now());
 
-	let embed = CreateEmbed::new()
-		.title(title)
-		.description(content.into())
-		.color(color)
-		.timestamp(serenity::model::Timestamp::now());
-
-	channel_id
-		.send_message(&ctx.http(), CreateMessage::new().embed(embed))
-		.await?;
-
-	Ok(())
+		let _ = channel
+			.send_message(&ctx.http, CreateMessage::new().embed(embed))
+			.await;
+	}
 }
