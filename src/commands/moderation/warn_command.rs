@@ -85,7 +85,7 @@ pub async fn list(
 		let lines: Vec<String> = warns
 			.iter()
 			.enumerate()
-			.map(|(i, warn)| {
+			.map(|(_i, warn)| {
 				format!(
 					"{} - {}",
 					format_timestamp_ddmmyyyy(&warn.timestamp),
