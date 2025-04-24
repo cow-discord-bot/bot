@@ -16,6 +16,7 @@ use serenity::prelude::*;
 
 use crate::{Context, Error};
 
+/// Mute a guild member
 #[poise::command(prefix_command, slash_command, aliases("timeout"), guild_only)]
 pub async fn mute(
 	ctx: Context<'_>,
@@ -136,6 +137,7 @@ async fn get_or_create_muted_role(
 	Ok(new_role)
 }
 
+// should run on channel update evnts too
 pub async fn override_channel_perms(
 	ctx: &Context<'_>,
 	guild_id: GuildId,

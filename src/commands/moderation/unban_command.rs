@@ -3,6 +3,7 @@ use serenity::all::User;
 
 use crate::{Context, Error};
 
+/// Unban a guild member
 #[poise::command(prefix_command, slash_command, guild_only)]
 pub async fn unban(
 	ctx: Context<'_>,
