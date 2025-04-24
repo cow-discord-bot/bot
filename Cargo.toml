@@ -12,3 +12,4 @@ incremental = false
 
 [workspace]
 members = ["crates/bot", "crates/api"]
+resolver = "3"
