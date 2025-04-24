@@ -196,7 +196,12 @@ pub async fn list(
 	}
 
 	response
-		.edit(ctx, poise::CreateReply::default().components(vec![]))
+		.edit(
+			ctx,
+			poise::CreateReply::default()
+				.embed(create_embed_page(current_page))
+				.components(vec![]),
+		)
 		.await?;
 
 	Ok(())
