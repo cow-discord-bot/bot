@@ -6,7 +6,7 @@ use crate::{Context, Error};
 #[poise::command(prefix_command, slash_command)]
 pub async fn kick(
 	ctx: Context<'_>,
-	#[description = "User to ban"] user: User,
+	#[description = "User to kick"] user: User,
 	#[description = "Reason"] reason: Option<String>,
 ) -> Result<(), Error> {
 	ctx.defer().await?;
