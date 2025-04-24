@@ -36,7 +36,7 @@ pub async fn ban(
 		.await
 	{
 		| Ok(_) => {
-			response.push_str(&format!("✅ Banned {}.\n", user.tag()));
+			response.push_str(&format!("✅ Banned {}.\n", user.name));
 		},
 		| Err(e) => {
 			response.push_str(&format!("❌ Failed to ban user: {}\n", e));

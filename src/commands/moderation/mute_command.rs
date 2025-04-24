@@ -44,7 +44,7 @@ pub async fn mute(
 
 	let dm_result = send_mute_reason_dm(ctx, &user, reason_text).await;
 
-	let mut response = format!("✅ Muted {}.\n", user.tag());
+	let mut response = format!("✅ Muted {}.\n", user.name);
 	match dm_result {
 		| Ok(()) => response.push_str("✅ DM sent successfully."),
 		| Err(_) => response.push_str("❌ Could not send DM."),

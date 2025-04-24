@@ -25,7 +25,7 @@ pub async fn kick(
 		.await
 	{
 		| Ok(_) => {
-			response.push_str(&format!("✅ Kicked {}.\n", user.tag()));
+			response.push_str(&format!("✅ Kicked {}.\n", user.name));
 		},
 		| Err(e) => {
 			response.push_str(&format!("❌ Failed to kick user: {}\n", e));

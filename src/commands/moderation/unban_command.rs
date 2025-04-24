@@ -16,7 +16,7 @@ pub async fn unban(
 
 	let response = match guild_id.unban(&ctx.serenity_context().http, user.id).await {
 		| Ok(_) => {
-			format!("✅ Unbanned {}.", user.tag())
+			format!("✅ Unbanned {}.", user.name)
 		},
 		| Err(e) => {
 			format!("❌ Failed to unban user: {}", e)
