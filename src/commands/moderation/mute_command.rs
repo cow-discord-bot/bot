@@ -14,6 +14,7 @@ use serenity::builder::EditRole;
 use serenity::model::id::GuildId;
 use serenity::prelude::*;
 
+use crate::commands::moderation::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::{Context, Error};
 
 /// Mute a guild member
@@ -45,7 +46,7 @@ pub async fn mute(
 		.await
 		.map_err(|e| format!("Failed to assign Muted role: {}", e))?;
 
-	let dm_result = send_mute_reason_dm(ctx, &user, reason_text).await;
+	let dm_result = send_mod_action_reason_dm(ctx, &user, "muted", reason_text).await;
 
 	let mut response = format!("✅ Muted {}.\n", user.name);
 	match dm_result {
@@ -65,25 +66,6 @@ pub async fn mute(
 	)
 	.await?;
 
-	Ok(())
-}
-
-async fn send_mute_reason_dm(
-	ctx: Context<'_>,
-	user: &User,
-	reason: &str,
-) -> Result<(), Error> {
-	if let Some(guild_id) = ctx.guild_id() {
-		let guild_name = guild_id.name(ctx.cache()).unwrap_or("Unkown server".into());
-		user.dm(
-			ctx.serenity_context(),
-			CreateMessage::new().content(format!(
-				"**{}**: You have been muted.\n**Reason**: {}",
-				guild_name, reason
-			)),
-		)
-		.await?;
-	}
 	Ok(())
 }
 

@@ -1,6 +1,7 @@
 use poise::CreateReply;
-use serenity::all::{CreateMessage, User};
+use serenity::all::User;
 
+use crate::commands::moderation::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::{Context, Error};
 
 /// Ban a guild member
@@ -19,7 +20,7 @@ pub async fn dban(
 		.ok_or("This command can only be used in a guild")?;
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
-	let mut dm_result = send_ban_reason_dm(ctx, &user, reason_text).await;
+	let mut dm_result = send_mod_action_reason_dm(ctx, &user, "banned", reason_text).await;
 
 	let mut response = String::new();
 
@@ -50,24 +51,5 @@ pub async fn dban(
 	)
 	.await?;
 
-	Ok(())
-}
-
-async fn send_ban_reason_dm(
-	ctx: Context<'_>,
-	user: &User,
-	reason: &str,
-) -> Result<(), Error> {
-	if let Some(guild_id) = ctx.guild_id() {
-		let guild_name = guild_id.name(ctx.cache()).unwrap_or("Unkown server".into());
-		user.dm(
-			ctx.serenity_context(),
-			CreateMessage::new().content(format!(
-				"**{}**: You have been banned.\n**Reason**: {}",
-				guild_name, reason
-			)),
-		)
-		.await?;
-	}
 	Ok(())
 }
