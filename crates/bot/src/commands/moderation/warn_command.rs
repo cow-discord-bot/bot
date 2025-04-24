@@ -73,7 +73,7 @@ pub async fn list(
 		.ok_or("This command can only be used in a guild.")?;
 
 	let table_name = format!("guild_{}", guild_id);
-	let conn = Connection::open("src/data/user_warns.db")?;
+	let conn = Connection::open("data/user_warns.db")?;
 	let user_id = user.id.to_string();
 
 	let warns: Vec<Warning> = conn
@@ -218,7 +218,7 @@ pub async fn add_warn(
 	guild_id: GuildId,
 	reason: &str,
 ) -> Result<(), Error> {
-	let conn = Connection::open("src/data/user_warns.db")?;
+	let conn = Connection::open("data/user_warns.db")?;
 
 	let table_name = format!("guild_{}", guild_id);
 

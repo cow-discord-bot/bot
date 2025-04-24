@@ -28,7 +28,7 @@ pub struct Data {
 static DB_POOL: OnceCell<Pool<SqliteConnectionManager>> = OnceCell::const_new();
 
 async fn init_global_data() {
-	let manager = SqliteConnectionManager::file("src/data/tags.db");
+	let manager = SqliteConnectionManager::file("data/tags.db");
 	let pool = Pool::new(manager).expect_error("Failed to create connection pool");
 
 	DB_POOL
