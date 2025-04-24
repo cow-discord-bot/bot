@@ -7,8 +7,12 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use background::guild_logs::Handler;
+use commands::tags::tag_utils::TagDb;
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
+use r2d2::Pool;
+use r2d2_sqlite::SqliteConnectionManager;
+use tokio::sync::OnceCell;
 use types::{ApplicationContext, Context, Error};
 
 mod types {
@@ -17,7 +21,20 @@ mod types {
 	pub type ApplicationContext<'a> = poise::ApplicationContext<'a, super::Data, Error>;
 }
 
-pub struct Data {}
+pub struct Data {
+	pub tag_db: Arc<TagDb>,
+}
+
+static DB_POOL: OnceCell<Pool<SqliteConnectionManager>> = OnceCell::const_new();
+
+async fn init_global_data() {
+	let manager = SqliteConnectionManager::file("src/data/tags.db");
+	let pool = Pool::new(manager).expect_error("Failed to create connection pool");
+
+	DB_POOL
+		.set(pool)
+		.expect_error("DB_POOL can only be initialized once");
+}
 
 async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 	match error {
@@ -94,7 +111,9 @@ async fn main() {
 			Box::pin(async move {
 				println!("Logged in as {}", _ready.user.name);
 				poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-				Ok(Data {})
+				Ok(Data {
+					tag_db: Arc::new(TagDb),
+				})
 			})
 		})
 		.options(options)
@@ -110,6 +129,8 @@ async fn main() {
 		.raw_event_handler(Handler)
 		.framework(framework)
 		.await;
+
+	init_global_data().await;
 
 	client.unwrap().start().await.unwrap();
 }

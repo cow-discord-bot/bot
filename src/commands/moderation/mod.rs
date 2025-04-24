@@ -3,6 +3,7 @@
 
 pub mod ban_command;
 pub mod dban_command;
+pub mod dm_notifier_utils;
 pub mod kick_command;
 pub mod mute_command;
 pub mod unban_command;
