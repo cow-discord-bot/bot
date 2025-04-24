@@ -11,11 +11,7 @@ struct ReportModal {
 	reason: String,
 }
 
-#[poise::command(
-	slash_command,
-	context_menu_command = "Report Message",
-	ephemeral = true
-)]
+#[poise::command(context_menu_command = "Report Message", ephemeral = true)]
 pub async fn report_message(
 	ctx: ApplicationContext<'_>,
 	#[description = "Reported message"] message: Message,
@@ -29,10 +25,10 @@ pub async fn report_message(
 		let embed = CreateEmbed::default()
 			.title("New Report")
 			.description(format!(
-				r#"__Message content:__
+				r#"**Message content:**
 {}
 
-__Reason:__
+**Reason:**
 ```
 {}
 ```
