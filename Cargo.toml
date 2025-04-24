@@ -11,3 +11,12 @@ dotenv = "0.15.0"
 
 [profile.dev]
 opt-level = 0
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+incremental = false
