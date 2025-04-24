@@ -1,10 +1,24 @@
 use poise::CreateReply;
+use poise::serenity_prelude::ComponentInteractionCollector;
 use rusqlite::{Connection, params};
 use serde::{Deserialize, Serialize};
-use serenity::all::{CreateMessage, GuildId, User};
+use serenity::all::{
+	ButtonStyle,
+	CreateActionRow,
+	CreateButton,
+	CreateEmbed,
+	CreateEmbedFooter,
+	CreateInteractionResponse,
+	CreateInteractionResponseMessage,
+	CreateMessage,
+	GuildId,
+	User,
+};
 
 use crate::utils::dates::format_timestamp_ddmmyyyy;
 use crate::{Context, Error};
+
+const WARNS_PER_PAGE: usize = 10;
 
 /// Warn a guild member
 #[poise::command(prefix_command, slash_command, subcommands("list"), guild_only)]
@@ -40,7 +54,6 @@ pub async fn warn(
 	Ok(())
 }
 
-// todo: use embed, add pagination, at the bottom show the page number of total pages and the total warns amount
 /// Show all warns of a guild member
 #[poise::command(
 	prefix_command,
@@ -51,19 +64,18 @@ pub async fn warn(
 )]
 pub async fn list(
 	ctx: Context<'_>,
-	#[description = "User to warn"] user: User,
+	#[description = "User to show warnings for"] user: User,
 ) -> Result<(), Error> {
-	let Some(guild_id) = ctx.guild_id() else {
-		ctx.say("This command can only be used in a server.")
-			.await?;
-		return Ok(());
-	};
+	ctx.defer().await?;
+
+	let guild_id = ctx
+		.guild_id()
+		.ok_or("This command can only be used in a guild.")?;
 
 	let table_name = format!("guild_{}", guild_id);
-
 	let conn = Connection::open("src/data/user_warns.db")?;
-
 	let user_id = user.id.to_string();
+
 	let warns: Vec<Warning> = conn
 		.prepare(&format!(
 			"SELECT warns FROM {} WHERE user_id = ?1",
@@ -81,24 +93,111 @@ pub async fn list(
 		})
 		.unwrap_or_else(|_| vec![]);
 
-	let response = if warns.is_empty() {
-		format!("{} has no warnings.", user.name)
-	} else {
-		let lines: Vec<String> = warns
+	if warns.is_empty() {
+		ctx.say(format!("{} has no warnings.", user.name)).await?;
+		return Ok(());
+	}
+
+	let total_warns = warns.len();
+	let total_pages = (total_warns + WARNS_PER_PAGE - 1) / WARNS_PER_PAGE;
+	let mut current_page = 0;
+
+	let create_embed_page = |page: usize| -> CreateEmbed {
+		let start = page * WARNS_PER_PAGE;
+		let end = (start + WARNS_PER_PAGE).min(total_warns);
+
+		let description = warns[start..end]
 			.iter()
-			.enumerate()
-			.map(|(_i, warn)| {
+			.map(|warn| {
 				format!(
-					"{} - {}",
+					"**{}** - {}",
 					format_timestamp_ddmmyyyy(&warn.timestamp),
-					warn.reason,
+					warn.reason
 				)
 			})
-			.collect();
-		lines.join("\n")
+			.collect::<Vec<_>>()
+			.join("\n");
+
+		let footer_text = format!(
+			"Page {}/{} • Total Warnings: {}",
+			page + 1,
+			total_pages,
+			total_warns
+		);
+
+		CreateEmbed::default()
+			.title(format!("Warnings for {}", user.name))
+			.description(description)
+			.footer(CreateEmbedFooter::new(footer_text))
 	};
 
-	ctx.send(CreateReply::default().content(response)).await?;
+	let create_components = |page: usize| {
+		vec![CreateActionRow::Buttons(vec![
+			CreateButton::new("first")
+				.label("◀◀")
+				.style(ButtonStyle::Primary)
+				.disabled(page == 0),
+			CreateButton::new("prev")
+				.label("◀")
+				.style(ButtonStyle::Secondary)
+				.disabled(page == 0),
+			CreateButton::new("next")
+				.label("▶")
+				.style(ButtonStyle::Secondary)
+				.disabled(page + 1 >= total_pages),
+			CreateButton::new("last")
+				.label("▶▶")
+				.style(ButtonStyle::Primary)
+				.disabled(page + 1 >= total_pages),
+		])]
+	};
+
+	let response = ctx
+		.send(
+			CreateReply::default()
+				.embed(create_embed_page(current_page))
+				.components(create_components(current_page)),
+		)
+		.await?;
+
+	while let Some(interaction) = ComponentInteractionCollector::new(ctx.serenity_context())
+		.message_id(response.message().await?.id)
+		.author_id(ctx.author().id)
+		.timeout(std::time::Duration::from_secs(60 * 2))
+		.await
+	{
+		let action = interaction.data.custom_id.as_str();
+		match action {
+			| "first" => current_page = 0,
+			| "prev" => {
+				if current_page > 0 {
+					current_page -= 1;
+				}
+			},
+			| "next" => {
+				if current_page + 1 < total_pages {
+					current_page += 1;
+				}
+			},
+			| "last" => current_page = total_pages - 1,
+			| _ => {},
+		}
+
+		interaction
+			.create_response(
+				ctx.serenity_context(),
+				CreateInteractionResponse::UpdateMessage(
+					CreateInteractionResponseMessage::new()
+						.embed(create_embed_page(current_page))
+						.components(create_components(current_page)),
+				),
+			)
+			.await?;
+	}
+
+	response
+		.edit(ctx, poise::CreateReply::default().components(vec![]))
+		.await?;
 
 	Ok(())
 }
