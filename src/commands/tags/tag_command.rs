@@ -54,7 +54,8 @@ pub async fn tag(
 	slash_command,
 	invoke_on_edit,
 	reuse_response,
-	guild_only
+	guild_only,
+	aliases("add")
 )]
 async fn create(
 	ctx: Context<'_>,
