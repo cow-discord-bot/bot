@@ -66,7 +66,7 @@ async fn send_ban_reason_dm(
 	reason: &str,
 ) -> Result<(), Error> {
 	if let Some(guild_id) = ctx.guild_id() {
-		let guild_name = guild_id.name(ctx.cache()).unwrap_or("a server".into());
+		let guild_name = guild_id.name(ctx.cache()).unwrap_or("Unkown server".into());
 		user.dm(
 			ctx.serenity_context(),
 			CreateMessage::new().content(format!(
