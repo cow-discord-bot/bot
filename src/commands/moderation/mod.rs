@@ -5,3 +5,4 @@ pub mod ban_command;
 pub mod kick_command;
 pub mod mute_command;
 pub mod unban_command;
+pub mod warn_command;

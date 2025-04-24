@@ -8,6 +8,9 @@ serenity = "0.12.4"
 poise = { git = "https://github.com/serenity-rs/poise", branch = "current" }
 tokio = { version = "1.44.2", features = ["full"] }
 dotenv = "0.15.0"
+rusqlite = { version = "0.35.0", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 chrono = "0.4.40"
 
 [profile.dev]

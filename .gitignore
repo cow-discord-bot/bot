@@ -2,3 +2,4 @@
 .env
 clippy.json
 *.swp
+*.db
