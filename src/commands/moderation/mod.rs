@@ -2,4 +2,5 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
 pub mod ban_command;
+pub mod kick_command;
 pub mod unban_command;
