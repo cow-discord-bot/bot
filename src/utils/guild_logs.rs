@@ -30,7 +30,7 @@ impl RawEventHandler for Handler {
 				let user = &e.message.author;
 
 				// todo dont hardcode
-				if (user.id.to_string() == "1242367482346606633") {
+				if user.id.to_string() == "1242367482346606633" {
 					return;
 				}
 
