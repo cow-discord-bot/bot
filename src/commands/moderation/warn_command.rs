@@ -10,7 +10,6 @@ use serenity::all::{
 	CreateEmbedFooter,
 	CreateInteractionResponse,
 	CreateInteractionResponseMessage,
-	CreateMessage,
 	GuildId,
 	User,
 };
