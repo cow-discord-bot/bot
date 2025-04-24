@@ -24,18 +24,17 @@ pub async fn ban(
 
 	let mut dm_result = send_ban_reason_dm(ctx, &user, reason_text).await;
 
-	let ban_result = guild_id
+	let mut response = String::new();
+
+	match guild_id
 		.ban_with_reason(
 			&ctx.serenity_context().http,
 			user.id,
 			delete_days,
 			reason_text,
 		)
-		.await;
-
-	let mut response = String::new();
-
-	match ban_result {
+		.await
+	{
 		| Ok(_) => {
 			response.push_str(&format!("✅ Banned {}.\n", user.tag()));
 		},

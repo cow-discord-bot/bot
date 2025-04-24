@@ -16,15 +16,14 @@ pub async fn kick(
 		.ok_or("This command can only be used in a guild")?;
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
-	let mut dm_result = send_ban_reason_dm(ctx, &user, reason_text).await;
-
-	let kick_result = guild_id
-		.kick_with_reason(&ctx.serenity_context().http, user.id, reason_text)
-		.await;
+	let mut dm_result = send_kick_reason_dm(ctx, &user, reason_text).await;
 
 	let mut response = String::new();
 
-	match kick_result {
+	match guild_id
+		.kick_with_reason(&ctx.serenity_context().http, user.id, reason_text)
+		.await
+	{
 		| Ok(_) => {
 			response.push_str(&format!("✅ Kicked {}.\n", user.tag()));
 		},
@@ -49,7 +48,7 @@ pub async fn kick(
 	Ok(())
 }
 
-async fn send_ban_reason_dm(
+async fn send_kick_reason_dm(
 	ctx: Context<'_>,
 	user: &User,
 	reason: &str,

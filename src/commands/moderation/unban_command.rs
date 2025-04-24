@@ -14,9 +14,7 @@ pub async fn unban(
 		.guild_id()
 		.ok_or("This command can only be used in a guild")?;
 
-	let unban_result = guild_id.unban(&ctx.serenity_context().http, user.id).await;
-
-	let response = match unban_result {
+	let response = match guild_id.unban(&ctx.serenity_context().http, user.id).await {
 		| Ok(_) => {
 			format!("✅ Unbanned {}.", user.tag())
 		},
