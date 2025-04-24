@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+cargo run --bin bot "$@" &
+BOT_PID=$!
+
+cargo run --bin api "$@"
+wait $BOT_PID

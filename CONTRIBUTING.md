@@ -24,7 +24,7 @@ git clone https://github.com/Not-a-cowfr/Cow-bot.git
     - Create a [discord bot](https://discord.com/developers/applications) and copy its private token, add it to the `.env`
 - Run the bot
 ```sh
-cargo run
+./run
 ```
 
 ### How to add a command
