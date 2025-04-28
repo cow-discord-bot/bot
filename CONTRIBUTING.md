@@ -110,7 +110,7 @@ This will now be automatically generated as an endpoint upon running thanks to [
 
 Currently the build script for the endpoints has 2 bugs
 1. It wont work if there are no endpoints
-- this isn't really an issue, there will never be 0 endpoints but it's just good to note
-2. You can't put an endpoint file in the `src/endpoints/` dir
-- I think it should be fixed but again, not exactly anything to fret about, endpoint files should be put ina directory similar to their endpoint currently
+- This isn't really an issue, there will never be 0 endpoints but it's just good to note
+2. You can't put an endpoint file directly in the `src/endpoints/` dir, it needs to be nested
+- I think it should be fixed but again, not exactly anything to fret about, endpoint files should be put in a directory similar to their endpoint currently
 - For example the url `/{idk_some_param}/test/example` should be in `src/endpoints/idk_some_param/test/example/file_name_endpoint.rs`
