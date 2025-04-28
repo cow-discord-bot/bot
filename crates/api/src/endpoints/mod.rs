@@ -2,9 +2,10 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
 pub mod guild_id;
+pub mod health;
 
 pub use axum::Router;
 
 pub fn add_endpoints(app: Router) -> Router {
-	app.merge(guild_id::health::health_check_endpoint::health_check()).merge(guild_id::settings::set_log_channel_endpoint::set_log_channel())
+	app.merge(guild_id::settings::set_log_channel_endpoint::set_log_channel()).merge(health::health_check_endpoint::health_check())
 }

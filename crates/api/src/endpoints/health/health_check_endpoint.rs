@@ -4,7 +4,7 @@ use axum::routing::post;
 use axum::{Json, Router};
 use serde::Serialize;
 
-pub fn test() -> Router { Router::new().route("/health", post(handle_request)) }
+pub fn health_check() -> Router { Router::new().route("/health", post(handle_request)) }
 
 #[derive(Serialize)]
 struct Response {
