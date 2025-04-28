@@ -1,10 +1,10 @@
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use axum::routing::post;
+use axum::routing::get;
 use axum::{Json, Router};
 use serde::Serialize;
 
-pub fn health_check() -> Router { Router::new().route("/health", post(handle_request)) }
+pub fn health_check() -> Router { Router::new().route("/health", get(handle_request)) }
 
 #[derive(Serialize)]
 struct Response {
