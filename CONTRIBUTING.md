@@ -30,7 +30,7 @@ git clone https://github.com/not-a-cowfr/discord-bot.git
 ## If you want to run in release, using a domain for the api
 
 ### Prerequisites
-- Previous Prerequisites
+- Previous prerequisites
 - nginx
 
 ### Steps
@@ -61,7 +61,7 @@ The build script relies on your nginx directory too look something like this
 nginx dir
   ├──nginx.exe
   └──conf
-    ├──<your filename from step 3>
+    ├──<your filename from step 2>
     └──nginx.conf
 ```
 It also relies on your nginx path to be in your PATH environment variable
