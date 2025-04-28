@@ -6,5 +6,5 @@ pub mod guild_id;
 pub use axum::Router;
 
 pub fn add_endpoints(app: Router) -> Router {
-	app.merge(guild_id::test_endpoint::test())
+	app.merge(guild_id::settings::set_log_channel_endpoint::set_log_channel())
 }
