@@ -64,6 +64,5 @@ pub fn test() -> Router { Router::new().route("/example", post(handle_request)) 
 async fn handle_request() -> impl IntoResponse {
 	(StatusCode::OK, "this endpoint is an example!".to_string())
 }
-
 ```
 This will now be automatically generated as an endpoint upon running thanks to [build.rs](crates/api/src/build.rs)
