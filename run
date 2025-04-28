@@ -29,6 +29,19 @@ if [ "$1" = "release" ]; then
 
     cd $CURRENT_DIR
 
+    # the process killing on this is pretty ass idk if theres any easy way to kill nginx
+    # I use this nushell function i have in my nu config to help
+    #
+    # def "nginx kill" [] {
+    #     let nginx_pids = (ps | where name =~ "nginx" | get pid)
+    #     $nginx_pids | each { |pid|
+    #         ^taskkill /F /PID $pid
+    #     }
+    # }
+    # alias "kill nginx" = nginx kill
+    #
+    # ignore the errors it gives and just run it 1-3 times until it works
+
     trap 'taskkill /F /IM nginx.exe; kill $BOT_PID; kill $API_PID; wait $BOT_PID $API_PID 2>/dev/null; exit' INT
 
     wait $BOT_PID $API_PID
