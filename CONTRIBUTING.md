@@ -1,7 +1,7 @@
 > [!NOTE]
 > This was developed on windows so you're more on your own if on mac or linux
 
-### Prerequisites
+# Prerequisites
 - Git
 - Rustc
 - [msvc build tools](https://visualstudio.microsoft.com/downloads/?q=build+tools)
@@ -11,7 +11,7 @@
 - sqlite3
 - A Discord bot
 
-### Setting Up
+# Setting Up
 - Clone the repository
 ```sh
 git clone https://github.com/not-a-cowfr/discord-bot.git
@@ -29,11 +29,11 @@ git clone https://github.com/not-a-cowfr/discord-bot.git
 
 ## If you want to run in release, using a domain for the api
 
-# Prerequisites
+### Prerequisites
 - Previous Prerequisites
 - nginx
 
-# Steps
+### Steps
 1. Create an A record pointing to the ip you're hosting the api on
 2. In your nginx conf dir add a file `<your chosen domain name>.conf` and add this:
 ```conf
@@ -66,7 +66,7 @@ nginx dir
 ```
 It also relies on your nginx path to be in your PATH environment variable
 
-### How to add a command
+# How to add a command
 - Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
 - Create a function in that file with the same name as the file, excluding the `_command`
 - Make sure your command include poise macro to define what kind of command it is, and takes a context param
@@ -86,7 +86,7 @@ pub async fn example(
 ```
 This will now be automatically generated as a command upon running thanks to [build.rs](crates/bot/src/build.rs)
 
-### How to add an api endpoint
+# How to add an api endpoint
 Very similar to how you add a command
 - Add a file ending with `_endpoint` in `crates/api/src/endpoints/` or a subdirectory of that
 - Create a function in that file with the same name as the file, excluding the `_endpoint`
