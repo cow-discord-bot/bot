@@ -50,6 +50,7 @@ dependencies = [
  "serde_json",
  "sled",
  "tokio",
+ "tracing",
  "tracing-subscriber",
 ]
 
