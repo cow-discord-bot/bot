@@ -27,6 +27,45 @@ git clone https://github.com/not-a-cowfr/discord-bot.git
 ./run
 ```
 
+## If you want to run in release, using a domain for the api
+
+# Prerequisites
+- Previous Prerequisites
+- nginx
+
+# Steps
+1. Create an A record pointing to the ip you're hosting the api on
+2. In your nginx conf dir add a file `<your chosen domain name>.conf` and add this:
+```conf
+server {
+    listen 80;
+    server_name <your domain>;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
+3. Also in your nginx conf dir add this to your `nginx.conf`
+```conf
+include <filename from last step>;
+```
+4. In the root project directory run
+```sh
+./run release
+```
+The build script relies on your nginx directory too look something like this
+```
+nginx dir
+  ├──nginx.exe
+  └──conf
+    ├──<your filename from step 3>
+    └──nginx.conf
+```
+It also relies on your nginx path to be in your PATH environment variable
+
 ### How to add a command
 - Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
 - Create a function in that file with the same name as the file, excluding the `_command`
