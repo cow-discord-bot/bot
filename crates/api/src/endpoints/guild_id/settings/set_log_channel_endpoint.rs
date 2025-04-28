@@ -52,15 +52,9 @@ async fn set_channel_id(
 	channel_id: u64,
 	guild_id: String,
 ) -> Result<(), sled::Error> {
-	println!("Current directory: {:?}", std::env::current_dir().unwrap());
-	println!("fn called");
 	let db = sled::open("data/guild_settings/log_channels")?;
-	println!("db opened");
 	let tree = db.open_tree(guild_id)?;
-	println!("tree opened");
 	tree.insert(key.as_bytes(), &channel_id.to_be_bytes())?;
-	println!("key inserted");
 	tree.flush()?;
-	println!("flushed");
 	Ok(())
 }
