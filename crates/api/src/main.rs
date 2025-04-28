@@ -5,6 +5,7 @@ mod endpoints;
 #[tokio::main]
 async fn main() {
 	tracing_subscriber::fmt::init();
+
 	let app = endpoints::add_endpoints(axum::Router::new());
 
 	let listener = tokio::net::TcpListener::bind(format!(
