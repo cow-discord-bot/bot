@@ -4,3 +4,4 @@ clippy.json
 *.swp
 *.db
 /data
+api.log

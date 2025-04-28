@@ -1,7 +1,33 @@
 #!/usr/bin/env bash
 
+NGINX_PATH=$(which nginx)
+NGINX_DIR=$(dirname "$NGINX_PATH")
+if [ -z "$NGINX_PATH" ]; then
+    exit 1
+fi
+
+CURRENT_DIR=$(pwd)
+
+cd $CURRENT_DIR
 cargo run --bin bot "$@" &
 BOT_PID=$!
 
-cargo run --bin api "$@"
-wait $BOT_PID
+cargo run --bin api "$@" > api.log 2>&1 &
+API_PID=$!
+
+cd $NGINX_DIR
+nginx
+NGINX_PID=$!
+
+if ! tasklist | grep -i "nginx.exe" > /dev/null; then
+    kill $BOT_PID
+    kill $API_PID
+    wait $BOT_PID $API_PID 2>/dev/null
+    exit 1
+fi
+
+cd $CURRENT_DIR
+
+trap 'taskkill /F /IM nginx.exe; kill $BOT_PID; kill $API_PID; wait $BOT_PID $API_PID 2>/dev/null; exit' INT
+
+wait $BOT_PID $API_PID
