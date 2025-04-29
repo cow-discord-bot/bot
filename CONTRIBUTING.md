@@ -27,7 +27,7 @@ git clone https://github.com/cow-discord-bot/bot.git
 ./run
 ```
 
-## If you want to run in release, using a domain for the api
+<details><summary><h1>If you want to run in release, using a domain for the api</h1></summary>
 
 ### Prerequisites
 - Previous prerequisites
@@ -111,6 +111,8 @@ server {
     }
 }
 ```
+
+</details>
 
 # How to add a command
 - Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
