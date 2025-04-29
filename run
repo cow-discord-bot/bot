@@ -2,7 +2,6 @@
 
 if [ "$1" = "release" ]; then
     NGINX_PATH=$(which nginx)
-    NGINX_DIR=$(dirname "$NGINX_PATH")
     if [ -z "$NGINX_PATH" ]; then
         exit 1
     fi
@@ -13,10 +12,10 @@ if [ "$1" = "release" ]; then
     cargo run --bin bot "$@" &
     BOT_PID=$!
 
-    cargo run --bin api "$@" > api.log 2>&1 &
+    cargo run --bin api "$@" &
     API_PID=$!
 
-    cd $NGINX_DIR
+    cd $(dirname "$NGINX_PATH")
     nginx
     NGINX_PID=$!
 
