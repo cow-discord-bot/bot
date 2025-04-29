@@ -31,11 +31,11 @@ git clone https://github.com/not-a-cowfr/discord-bot.git
 
 ### Prerequisites
 - Previous prerequisites
-- nginx
+- [nginx](https://nginx.org/)
 
 ### Steps
 1. Create an A record pointing to the ip you're hosting the api on
-2. In your nginx conf dir add a file `<your chosen domain name>.conf` and add this:
+2. In your nginx conf dir add a file `conf.d/<your chosen domain name>.conf` and add this:
 ```conf
 server {
     listen 80;
@@ -52,7 +52,7 @@ server {
 ```
 3. Also in your nginx conf dir add this to your `nginx.conf`
 ```conf
-include <filename from last step>;
+include conf.d/*.conf;
 ```
 4. In the root project directory run
 ```sh
@@ -63,10 +63,54 @@ The build script relies on your nginx directory too look something like this
 nginx dir
   ├──nginx.exe
   └──conf
-    ├──<your filename from step 2>
-    └──nginx.conf
+    ├──nginx.conf
+    └──conf.d
+      └──<your filename from step 2>
 ```
 It also relies on your nginx path to be in your PATH environment variable
+
+## If you want to use https with nginx
+
+### Prerequisites
+- Previous prerequisites
+- [win acme](https://github.com/win-acme/win-acme/releases/tag/v2.2.9.1701)
+
+### Steps
+1. Generate certificate
+```sh
+wacs --source manual --host <your domain> --validation filesystem --webroot "<nginx dir>/html" --store pemfiles --pemfilespath "<nginx dir>/certs"
+```
+2. Accept the terms they give you and enter your email for notifications, I don't remmeber if the email is optional
+3. Update your conf file from step 2 of the previous set of instructions
+```conf
+server {
+    listen 80;
+    server_name <your domain name>;
+    location /.well-known/acme-challenge/ {
+        root <nginx dir>/html;
+        allow all;
+    }
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name <your domain name>;
+    ssl_certificate <nginx dir>/certs/<your domain name>-chain.pem;
+    ssl_certificate_key <nginx dir>/certs/<your domain name>-key.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    location / {
+        proxy_pass http://localhost:3000; # change the port if you chose something else for the API_PORT env var
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
 
 # How to add a command
 - Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
