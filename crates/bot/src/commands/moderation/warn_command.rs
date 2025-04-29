@@ -42,7 +42,7 @@ pub async fn warn(
 		| Err(_) => "❌ Could not send DM.",
 	};
 
-	add_warn(user, guild_id, &reason_text).await?;
+	add_warn(user, guild_id, reason_text).await?;
 
 	ctx.send(
 		CreateReply::default()
@@ -99,7 +99,7 @@ pub async fn list(
 	}
 
 	let total_warns = warns.len();
-	let total_pages = (total_warns + WARNS_PER_PAGE - 1) / WARNS_PER_PAGE;
+	let total_pages = total_warns.div_ceil(WARNS_PER_PAGE);
 	let mut current_page = 0;
 
 	let create_embed_page = |page: usize| -> CreateEmbed {
@@ -170,9 +170,7 @@ pub async fn list(
 		match action {
 			| "first" => current_page = 0,
 			| "prev" => {
-				if current_page > 0 {
-					current_page -= 1;
-				}
+				current_page = current_page.saturating_sub(1);
 			},
 			| "next" => {
 				if current_page + 1 < total_pages {

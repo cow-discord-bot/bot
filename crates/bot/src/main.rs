@@ -68,7 +68,7 @@ impl<T, E: std::fmt::Debug> ExpectError<T> for Result<T, E> {
 		self,
 		msg: &str,
 	) -> T {
-		self.expect(&format!("\x1b[31;1m[ERROR] {}\x1b[0m", msg))
+		self.unwrap_or_else(|_| panic!("\x1b[31;1m[ERROR] {}\x1b[0m", msg))
 	}
 }
 

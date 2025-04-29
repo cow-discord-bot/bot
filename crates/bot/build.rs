@@ -14,7 +14,7 @@ impl<T, E: std::fmt::Debug> ExpectError<T> for Result<T, E> {
 		self,
 		msg: &str,
 	) -> T {
-		self.expect(&format!("\x1b[31;1m[ERROR] {}\x1b[0m", msg))
+		self.unwrap_or_else(|_| panic!("\x1b[31;1m[ERROR] {}\x1b[0m", msg))
 	}
 }
 
@@ -30,53 +30,50 @@ fn process_dir(
 
 	for entry in std::fs::read_dir(dir_path)
 		.expect_error(&format!("Failed to read {:?} directory", dir_path))
+		.flatten()
 	{
-		if let Ok(entry) = entry {
-			let path = entry.path();
+		let path = entry.path();
 
-			if path.is_dir() {
-				if let Some(dir_name) = path.file_name().and_then(|s| s.to_str()) {
-					dir_modules.insert(format!("pub mod {};", dir_name));
+		if path.is_dir() {
+			if let Some(dir_name) = path.file_name().and_then(|s| s.to_str()) {
+				dir_modules.insert(format!("pub mod {};", dir_name));
 
-					process_dir(
-						&path,
-						base_path,
-						module_entries,
-						dir_modules,
-						function_entries,
-						mod_dirs,
-					);
+				process_dir(
+					&path,
+					base_path,
+					module_entries,
+					dir_modules,
+					function_entries,
+					mod_dirs,
+				);
+			}
+		} else if path.is_file() && path.extension().is_some_and(|ext| ext == "rs") {
+			if let Some(filename) = path.file_stem().and_then(|s| s.to_str()) {
+				if filename == "mod" {
+					continue;
 				}
-			} else if path.is_file() {
-				if path.extension().map_or(false, |ext| ext == "rs") {
-					if let Some(filename) = path.file_stem().and_then(|s| s.to_str()) {
-						if filename == "mod" {
-							continue;
-						}
 
-						let relative_path = path.strip_prefix(base_path).unwrap_or(&path);
-						let parent_parts: Vec<_> = relative_path
-							.parent()
-							.unwrap()
-							.components()
-							.map(|c| c.as_os_str().to_string_lossy())
-							.collect();
+				let relative_path = path.strip_prefix(base_path).unwrap_or(&path);
+				let parent_parts: Vec<_> = relative_path
+					.parent()
+					.unwrap()
+					.components()
+					.map(|c| c.as_os_str().to_string_lossy())
+					.collect();
 
-						if filename.ends_with("_command") {
-							module_entries.insert(format!("pub mod {};", filename));
+				if filename.ends_with("_command") {
+					module_entries.insert(format!("pub mod {};", filename));
 
-							let command_name = filename.strip_suffix("_command").unwrap();
-							let function_path = format!(
-								"{}::{}::{}",
-								parent_parts.join("::"),
-								filename,
-								command_name
-							);
-							function_entries.push(format!("{}()", function_path));
-						} else {
-							module_entries.insert(format!("pub mod {};", filename));
-						}
-					}
+					let command_name = filename.strip_suffix("_command").unwrap();
+					let function_path = format!(
+						"{}::{}::{}",
+						parent_parts.join("::"),
+						filename,
+						command_name
+					);
+					function_entries.push(format!("{}()", function_path));
+				} else {
+					module_entries.insert(format!("pub mod {};", filename));
 				}
 			}
 		}
@@ -109,8 +106,8 @@ fn main() {
 				let entry = entry.ok()?;
 				let path = entry.path();
 				if path.is_file()
-					&& path.extension().map_or(false, |ext| ext == "rs")
-					&& path.file_stem().map_or(true, |s| s != "mod")
+					&& path.extension().is_some_and(|ext| ext == "rs")
+					&& path.file_stem().is_none_or(|s| s != "mod")
 				{
 					path.file_stem()
 						.and_then(|s| s.to_str())
