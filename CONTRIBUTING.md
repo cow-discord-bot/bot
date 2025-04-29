@@ -14,7 +14,7 @@
 # Setting Up
 - Clone the repository
 ```sh
-git clone https://github.com/not-a-cowfr/discord-bot.git
+git clone https://github.com/cow-discord-bot/bot.git
 ```
 - Fill out required environment variables
     - Create a copy of [.env.example](.env.example) and rename it to `.env`
