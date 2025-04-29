@@ -14,7 +14,7 @@ pub async fn send_mod_action_reason_dm(
 			ctx.serenity_context(),
 			CreateMessage::new().content(format!(
 				"**{}**: You have been {}.\n**Reason**: {}",
-				r#type, guild_name, reason
+				guild_name, r#type, reason
 			)),
 		)
 		.await?;
