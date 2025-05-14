@@ -2,12 +2,7 @@ use std::env::var;
 
 use poise::CreateReply;
 use serenity::all::{
-	EditChannel,
-	PermissionOverwrite,
-	PermissionOverwriteType,
-	Permissions,
-	RoleId,
-	User,
+	EditChannel, PermissionOverwrite, PermissionOverwriteType, Permissions, RoleId, User,
 };
 use serenity::builder::EditRole;
 use serenity::model::id::GuildId;
@@ -27,6 +22,8 @@ pub async fn mute(
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
+	// todo: check for config moderator role
+
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
 	let guild_id = ctx
@@ -40,22 +37,35 @@ pub async fn mute(
 		.await
 		.map_err(|e| format!("Failed to fetch member: {}", e))?;
 
-	member
+	let add_role_result = member
 		.add_role(ctx.serenity_context(), muted_role_id)
 		.await
-		.map_err(|e| format!("Failed to assign Muted role: {}", e))?;
+		.err()
+		.map(|e| format!("Failed to assign Muted role: {}", e));
 
-	let dm_result = send_mod_action_reason_dm(ctx, &user, "muted", reason_text).await;
+	let channel_perms_result = override_channel_perms(&ctx, guild_id, muted_role_id)
+		.await
+		.err()
+		.map(|_| "❌ Could not update channel permissions.".to_string());
 
-	let mut response = format!("✅ Muted {}.\n", user.name);
-	match dm_result {
-		| Ok(()) => response.push_str("✅ DM sent successfully."),
-		| Err(_) => response.push_str("❌ Could not send DM."),
-	}
+	let mut response = String::new();
 
-	match override_channel_perms(&ctx, guild_id, muted_role_id).await {
-		| Ok(()) => {},
-		| _ => response.push_str("❌ Could not update channel permissions."),
+	if add_role_result.is_none() && channel_perms_result.is_none() {
+		response = format!("✅ Muted {}.\n", user.name);
+		match send_mod_action_reason_dm(ctx, &user, "muted", reason_text).await {
+			| Ok(()) => response.push_str("✅ DM sent successfully."),
+			| Err(_) => response.push_str("❌ Could not send DM."),
+		}
+	} else {
+		if let Some(msg) = add_role_result {
+			response.push_str(&msg);
+		}
+		if let Some(msg) = channel_perms_result {
+			if !response.is_empty() {
+				response.push('\n');
+			}
+			response.push_str(&msg);
+		}
 	}
 
 	ctx.send(
@@ -146,8 +156,8 @@ pub async fn override_channel_perms(
 		} else {
 			overwrites.push(PermissionOverwrite {
 				allow: Permissions::empty(),
-				deny:  deny_permissions,
-				kind:  PermissionOverwriteType::Role(muted_role_id),
+				deny: deny_permissions,
+				kind: PermissionOverwriteType::Role(muted_role_id),
 			});
 			updated = true;
 		}

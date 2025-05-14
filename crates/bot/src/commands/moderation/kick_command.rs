@@ -15,31 +15,28 @@ pub async fn kick(
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
+	// todo: check for config moderator role
+
 	let guild_id = ctx
 		.guild_id()
 		.ok_or("This command can only be used in a guild")?;
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
-	let mut dm_result = send_mod_action_reason_dm(ctx, &user, "kicked", reason_text).await;
-
-	let mut response = String::new();
-
-	match guild_id
+	let kick_result = guild_id
 		.kick_with_reason(&ctx.serenity_context().http, user.id, reason_text)
 		.await
-	{
-		| Ok(_) => {
-			response.push_str(&format!("✅ Kicked {}.\n", user.name));
-		},
-		| Err(e) => {
-			response.push_str(&format!("❌ Failed to kick user: {}\n", e));
-			dm_result = Ok(());
-		},
-	}
+		.err()
+		.map(|e| format!("❌ Failed to kick user: {}\n", e));
 
-	match dm_result {
-		| Ok(()) => response.push_str("✅ DM sent successfully."),
-		| Err(_) => response.push_str("❌ Could not send DM."),
+	let mut response: String;
+	if let Some(kick_result) = kick_result {
+		response = kick_result;
+	} else {
+		response = format!("✅ Muted {}.\n", user.name);
+		match send_mod_action_reason_dm(ctx, &user, "kicked", reason_text).await {
+			| Ok(()) => response.push_str("✅ DM sent successfully."),
+			| Err(_) => response.push_str("❌ Could not send DM."),
+		}
 	}
 
 	ctx.send(

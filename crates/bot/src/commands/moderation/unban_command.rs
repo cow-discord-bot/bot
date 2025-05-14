@@ -11,17 +11,15 @@ pub async fn unban(
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
+	// todo: check for config admin role
+
 	let guild_id = ctx
 		.guild_id()
 		.ok_or("This command can only be used in a guild")?;
 
 	let response = match guild_id.unban(&ctx.serenity_context().http, user.id).await {
-		| Ok(_) => {
-			format!("✅ Unbanned {}.", user.name)
-		},
-		| Err(e) => {
-			format!("❌ Failed to unban user: {}", e)
-		},
+		| Ok(_) => format!("✅ Unbanned {}.", user.name),
+		| Err(e) => format!("❌ Failed to unban user: {}", e),
 	};
 
 	ctx.send(

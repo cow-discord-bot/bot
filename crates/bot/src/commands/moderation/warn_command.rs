@@ -31,18 +31,20 @@ pub async fn warn(
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
+	// todo: check for config moderator role
+
 	let guild_id = ctx
 		.guild_id()
 		.ok_or("This command can only be used in a guild.")?;
 
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
+	add_warn(&user, guild_id, reason_text).await?;
+
 	let response = match send_mod_action_reason_dm(ctx, &user, "warned", reason_text).await {
 		| Ok(()) => &format!("✅ warned {}.", user.name),
 		| Err(_) => "❌ Could not send DM.",
 	};
-
-	add_warn(user, guild_id, reason_text).await?;
 
 	ctx.send(
 		CreateReply::default()
@@ -212,7 +214,7 @@ struct Warning {
 }
 
 pub async fn add_warn(
-	user: User,
+	user: &User,
 	guild_id: GuildId,
 	reason: &str,
 ) -> Result<(), Error> {

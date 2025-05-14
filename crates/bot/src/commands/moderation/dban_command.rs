@@ -15,34 +15,31 @@ pub async fn dban(
 ) -> Result<(), Error> {
 	ctx.defer().await?;
 
+	// todo: check for config admin role
+
 	let guild_id = ctx
 		.guild_id()
 		.ok_or("This command can only be used in a guild")?;
 	let reason_text = reason.as_deref().unwrap_or("No reason provided");
 
-	let mut dm_result = send_mod_action_reason_dm(ctx, &user, "banned", reason_text).await;
-
-	let mut response = String::new();
-
-	match guild_id
-		.ban_with_reason(&ctx.serenity_context().http, user.id, 7, reason_text)
+	let ban_result = guild_id
+		.ban_with_reason(&ctx.serenity_context().http, user.id, 0, reason_text)
 		.await
-	{
-		| Ok(_) => {
-			response.push_str(&format!("✅ Banned {}.\n", user.name));
-		},
-		| Err(e) => {
-			response.push_str(&format!("❌ Failed to ban user: {}\n", e));
-			dm_result = Ok(());
-		},
+		.err()
+		.map(|e| format!("❌ Failed to ban user: {}\n", e));
+
+	let mut response: String;
+	if let Some(ban_result) = ban_result {
+		response = ban_result;
+	} else {
+		response = format!("✅ Banned {}.\n", user.name);
+		match send_mod_action_reason_dm(ctx, &user, "banned", reason_text).await {
+			| Ok(()) => response.push_str("✅ DM sent successfully."),
+			| Err(_) => response.push_str("❌ Could not send DM."),
+		}
 	}
 
 	// todo: purge rest of their messages, waiting on /purge backend
-
-	match dm_result {
-		| Ok(()) => response.push_str("✅ DM sent successfully."),
-		| Err(_) => response.push_str("❌ Could not send DM."),
-	}
 
 	ctx.send(
 		CreateReply::default()
