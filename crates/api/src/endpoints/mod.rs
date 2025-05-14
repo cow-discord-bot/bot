@@ -8,5 +8,5 @@ pub mod health;
 pub use axum::Router;
 
 pub fn add_endpoints(app: Router) -> Router {
-	app.merge(guild_id::settings::set_log_channel::set_log_channel()).merge(health::health::health())
+	app.merge(guild_id::settings::log_channel::set_log_channel::set_log_channel()).merge(health::health::health())
 }

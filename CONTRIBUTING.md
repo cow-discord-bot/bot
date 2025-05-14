@@ -138,14 +138,15 @@ This will now be automatically generated as a command upon running thanks to [bu
 - Create a file in `src/endpoints` thats nested matching its url endpoint
 - If a part of that url is a paremeter, show that in the directory by anming the coresponding dir name with a $ in the beginning
 
-for example: this would be `./crates/api/src/endpoints/nested_dir/$param_nested_dir/example.rs`
+for example: this would be `./crates/api/src/endpoints/nested_dir/$param_nested_dir/example/whatever_you_want_to_name_this.rs`
 ```rust
 use axum::Router;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::post;
 
-pub fn example() -> Router { Router::new().route("nested_dir/{param_nested_dir}/example", post(handle_request)) }
+// function name has to be same as file name
+pub fn whatever_you_want_to_name_this() -> Router { Router::new().route("nested_dir/{param_nested_dir}/example", post(handle_request)) }
 
 async fn handle_request() -> impl IntoResponse {
 	(StatusCode::OK, "this endpoint is an example!".to_string())
@@ -157,4 +158,8 @@ Currently the build script for the endpoints has 2 bugs
 1. It wont work if there are no endpoints
 - This isn't really an issue, there will never be 0 endpoints but it's just good to note
 2. You can't put an endpoint file directly in the `src/endpoints/` dir, it needs to be nested
-- This should be fixed as things like `/health` do not follow the rules they should be
+- Again, won't really affect anything due to how endpoints are supposed to be made anyway
+
+Maybe in the future the route will be fixed automatically based on the defined endpoint or the other way around
+If anyone cares i whipped up this regex in a few minutes for finding the router function
+`pub fn (?<function_name>\w+)\(\) -> Router {(?:\n\t)? ?Router::new\(\).route\("(?<url_endpoint>.*)", (?<request_type>\w+)\((?<request_handler>\w+)\)\)\n? ?}`
