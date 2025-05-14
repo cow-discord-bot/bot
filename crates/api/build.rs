@@ -61,15 +61,18 @@ fn process_dir(
 					.map(|c| c.as_os_str().to_string_lossy())
 					.collect();
 
-				if filename.ends_with("_endpoint") {
+				if filename != "mod" {
 					module_entries.insert(format!("pub mod {};", filename));
 
-					let endpoint_name = filename.strip_suffix("_endpoint").unwrap();
 					let function_path = format!(
 						"{}::{}::{}",
-						parent_parts.join("::"),
+						parent_parts
+							.iter()
+							.map(|s| s.strip_prefix('$').unwrap_or(s))
+							.collect::<Vec<_>>()
+							.join("::"),
 						filename,
-						endpoint_name
+						filename
 					);
 					function_entries.push(format!("{}()", function_path));
 				} else {
@@ -113,9 +116,13 @@ fn main() {
 						.and_then(|s| s.to_str())
 						.map(|s| format!("pub mod {};", s))
 				} else if path.is_dir() {
-					path.file_name()
-						.and_then(|s| s.to_str())
-						.map(|s| format!("pub mod {};", s))
+					path.file_name().and_then(|s| s.to_str()).map(|s| {
+						if let Some(stripped) = s.strip_prefix('$') {
+							format!("#[path = \"${}/mod.rs\"]\npub mod {};", stripped, stripped)
+						} else {
+							format!("pub mod {};", s)
+						}
+					})
 				} else {
 					None
 				}

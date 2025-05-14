@@ -135,18 +135,17 @@ pub async fn example(
 This will now be automatically generated as a command upon running thanks to [build.rs](crates/bot/src/build.rs)
 
 # How to add an api endpoint
-Very similar to how you add a command
-- Add a file ending with `_endpoint` in `crates/api/src/endpoints/` or a subdirectory of that
-- Create a function in that file with the same name as the file, excluding the `_endpoint`
+- Create a file in `src/endpoints` thats nested matching its url endpoint
+- If a part of that url is a paremeter, show that in the directory by anming the coresponding dir name with a $ in the beginning
 
-for example: this would be `crates/api/src/endpoints/nested_dir/nested_dir/example_endpoint.rs`
+for example: this would be `./crates/api/src/endpoints/nested_dir/$param_nested_dir/example.rs`
 ```rust
 use axum::Router;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::post;
 
-pub fn test() -> Router { Router::new().route("/example", post(handle_request)) }
+pub fn example() -> Router { Router::new().route("nested_dir/{param_nested_dir}/example", post(handle_request)) }
 
 async fn handle_request() -> impl IntoResponse {
 	(StatusCode::OK, "this endpoint is an example!".to_string())
@@ -158,5 +157,4 @@ Currently the build script for the endpoints has 2 bugs
 1. It wont work if there are no endpoints
 - This isn't really an issue, there will never be 0 endpoints but it's just good to note
 2. You can't put an endpoint file directly in the `src/endpoints/` dir, it needs to be nested
-- I think it should be fixed but again, not exactly anything to fret about, endpoint files should be put in a directory similar to their endpoint currently
-- For example the url `/{idk_some_param}/test/example` should be in `src/endpoints/idk_some_param/test/example/file_name_endpoint.rs`
+- This should be fixed as things like `/health` do not follow the rules they should be
