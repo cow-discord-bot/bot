@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 
+TIMESTAMP=$(date +"%d-%m-%y@%H-%M")
+LOG_DIR="./logs/$TIMESTAMP"
+
+mkdir -p "$LOG_DIR"
+
 if [ "$1" = "release" ]; then
     NGINX_PATH=$(which nginx)
     if [ -z "$NGINX_PATH" ]; then
+        echo "\e[1;91mnginx not found"
         exit 1
     fi
 
     CURRENT_DIR=$(pwd)
 
     cd $CURRENT_DIR
-    cargo run --bin bot "$@" &
+    cargo run --bin bot "$@" 2>&1 | tee "$LOG_DIR/bot.log" &
     BOT_PID=$!
 
-    cargo run --bin api "$@" &
+    cargo run --bin api "$@" 2>&1 | tee "$LOG_DIR/api.log" &
     API_PID=$!
 
     cd $(dirname "$NGINX_PATH")
