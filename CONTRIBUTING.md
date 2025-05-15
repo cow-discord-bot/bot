@@ -115,11 +115,11 @@ server {
 </details>
 
 # How to add a command
-- Add a file ending with `_command` in `crates/bot/src/commands/` or a subdirectory of that
-- Create a function in that file with the same name as the file, excluding the `_command`
+- Add a file ending in `crates/bot/src/commands/` or a subdirectory of that
+- Create a function in that file with the same name as the file
 - Make sure your command include poise macro to define what kind of command it is, and takes a context param
 
-for example: this would be `crates/bot/src/commands/nested_dir/nested_dir/example_command.rs`
+for example: this would be `crates/bot/src/commands/nested_dir/nested_dir/example.rs`
 ```rust
 use crate::{Context, Error};
 
