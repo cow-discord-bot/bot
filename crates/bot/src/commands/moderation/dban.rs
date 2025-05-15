@@ -1,12 +1,12 @@
 use poise::CreateReply;
 use serenity::all::User;
 
-use crate::commands::moderation::dm_notifier_utils::send_mod_action_reason_dm;
+use crate::utils::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::{Context, Error};
 
-/// Ban a guild member
+/// Ban a guild member and delete all messages
 #[poise::command(prefix_command, slash_command, guild_only)]
-pub async fn ban(
+pub async fn dban(
 	ctx: Context<'_>,
 	#[description = "User to ban"] user: User,
 	#[rest]
@@ -38,6 +38,8 @@ pub async fn ban(
 			| Err(_) => response.push_str("❌ Could not send DM."),
 		}
 	}
+
+	// todo: purge rest of their messages, waiting on /purge backend
 
 	ctx.send(
 		CreateReply::default()

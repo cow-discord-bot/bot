@@ -14,8 +14,8 @@ use serenity::all::{
 	User,
 };
 
-use crate::commands::moderation::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::utils::dates::format_timestamp_ddmmyyyy;
+use crate::utils::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::{Context, Error};
 
 const WARNS_PER_PAGE: usize = 10;

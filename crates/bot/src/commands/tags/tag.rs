@@ -2,8 +2,8 @@ use poise::CreateReply;
 use serenity::all::{CreateEmbed, CreateMessage};
 use tokio::time::Instant;
 
-use crate::commands::tags::tag_utils::get_data_and_id;
 use crate::utils::embeds::create_error_embed;
+use crate::utils::tag_utils::get_data_and_id;
 use crate::{Context, Error};
 
 #[poise::command(

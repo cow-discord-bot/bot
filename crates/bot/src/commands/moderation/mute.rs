@@ -8,7 +8,7 @@ use serenity::builder::EditRole;
 use serenity::model::id::GuildId;
 use serenity::prelude::*;
 
-use crate::commands::moderation::dm_notifier_utils::send_mod_action_reason_dm;
+use crate::utils::dm_notifier_utils::send_mod_action_reason_dm;
 use crate::{Context, Error};
 
 /// Mute a guild member

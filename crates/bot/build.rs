@@ -61,16 +61,11 @@ fn process_dir(
 					.map(|c| c.as_os_str().to_string_lossy())
 					.collect();
 
-				if filename.ends_with("_command") {
+				if filename != "mod" {
 					module_entries.insert(format!("pub mod {};", filename));
 
-					let command_name = filename.strip_suffix("_command").unwrap();
-					let function_path = format!(
-						"{}::{}::{}",
-						parent_parts.join("::"),
-						filename,
-						command_name
-					);
+					let function_path =
+						format!("{}::{}::{}", parent_parts.join("::"), filename, filename);
 					function_entries.push(format!("{}()", function_path));
 				} else {
 					module_entries.insert(format!("pub mod {};", filename));
