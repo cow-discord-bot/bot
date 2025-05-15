@@ -7,13 +7,13 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use background::guild_logs::Handler;
-use commands::tags::tag_utils::TagDb;
 use dotenv::dotenv;
 use poise::serenity_prelude as serenity;
 use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use tokio::sync::OnceCell;
 use types::{ApplicationContext, Context, Error};
+use utils::tag_utils::TagDb;
 
 mod types {
 	pub type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -38,10 +38,16 @@ async fn init_global_data() {
 
 async fn on_error(error: poise::FrameworkError<'_, Data, Error>) {
 	match error {
-		| poise::FrameworkError::Setup { error, .. } => {
+		| poise::FrameworkError::Setup {
+			error, ..
+		} => {
 			panic!("\x1b[31;1m[ERROR] Failed to start bot:\x1b[0m {:?}", error)
 		},
-		| poise::FrameworkError::Command { error, ctx, .. } => {
+		| poise::FrameworkError::Command {
+			error,
+			ctx,
+			..
+		} => {
 			println!(
 				"\x1b[31;1m[ERROR] in command '{}':\x1b[0m {:?}",
 				ctx.command().name,
