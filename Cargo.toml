@@ -1,5 +1,6 @@
 [profile.dev]
 opt-level = 0
+incremental = true
 
 [profile.release]
 opt-level = 3
@@ -8,7 +9,6 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
-incremental = false
 
 [workspace]
 members = ["crates/bot", "crates/api"]
