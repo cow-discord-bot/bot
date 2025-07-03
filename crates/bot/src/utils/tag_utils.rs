@@ -1,6 +1,5 @@
 use std::fmt;
 
-use rayon::prelude::*;
 use sled::Db;
 use strsim::jaro_winkler;
 

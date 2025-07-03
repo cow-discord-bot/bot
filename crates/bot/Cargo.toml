@@ -4,17 +4,24 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-serenity = "0.12.4"
-poise = { git = "https://github.com/serenity-rs/poise", branch = "current" }
+
 tokio = { version = "1.45.0", features = ["full"] }
+
 dotenv = "0.15.0"
+
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
 chrono = "0.4.41"
-rayon = "1.10.0"
+
+# discord libs 
+serenity = "0.12.4"
+poise = { git = "https://github.com/serenity-rs/poise", branch = "current" }
+
+# for typo fixing
 strsim = "0.11.1"
 
 # database stuff
 # todo: swap sqlite for postgresql
-rusqlite = { version = "0.35.0", features = ["bundled"] }
+rusqlite = { version = "0.36.0", features = ["bundled"] }
 sled = "0.34.7"
