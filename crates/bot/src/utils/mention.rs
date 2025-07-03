@@ -5,17 +5,25 @@ pub trait Mentionable {
 }
 
 impl Mentionable for User {
-	fn mention(&self) -> String { format!("<@{}>", self.id) }
+	fn mention(&self) -> String {
+		format!("<@{}>", self.id)
+	}
 }
 
 impl Mentionable for UserId {
-	fn mention(&self) -> String { format!("<@{}>", self) }
+	fn mention(&self) -> String {
+		format!("<@{}>", self)
+	}
 }
 
 impl Mentionable for Role {
-	fn mention(&self) -> String { format!("<@&{}>", self.id) }
+	fn mention(&self) -> String {
+		format!("<@&{}>", self.id)
+	}
 }
 
 impl Mentionable for RoleId {
-	fn mention(&self) -> String { format!("<@&{}>", self) }
+	fn mention(&self) -> String {
+		format!("<@&{}>", self)
+	}
 }

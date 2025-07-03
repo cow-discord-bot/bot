@@ -1,6 +1,5 @@
 use std::fmt;
 
-use rayon::prelude::*;
 use strsim::jaro_winkler;
 use tokio::task;
 
@@ -9,7 +8,9 @@ use crate::{Context, DB_POOL, Data, Error, ExpectError};
 pub struct TagDb;
 
 impl TagDb {
-	pub fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> { Ok(TagDb) }
+	pub fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+		Ok(TagDb)
+	}
 
 	pub async fn create_tag(
 		&self,
@@ -60,10 +61,10 @@ impl TagDb {
 			let result = task::spawn_blocking(
 				move || -> Result<Option<String>, Box<dyn std::error::Error + Send + Sync>> {
 					let conn = pool.get()?;
-					let modified = conn.execute(
-						&format!("DELETE FROM {} WHERE name = ?1", table_name),
-						[&fixed_name],
-					)?;
+					let modified = conn
+						.execute(&format!("DELETE FROM {} WHERE name = ?1", table_name), [
+							&fixed_name,
+						])?;
 					if modified != 0 {
 						Ok(Some(fixed_name))
 					} else {
@@ -183,7 +184,9 @@ pub enum CtxError {
 impl std::error::Error for CtxError {}
 
 impl From<serenity::Error> for CtxError {
-	fn from(err: serenity::Error) -> CtxError { CtxError::Discord(err.to_string()) }
+	fn from(err: serenity::Error) -> CtxError {
+		CtxError::Discord(err.to_string())
+	}
 }
 
 impl fmt::Display for CtxError {

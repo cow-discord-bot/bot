@@ -48,15 +48,10 @@ impl RawEventHandler for Handler {
 				}
 
 				// todo: attach the emssage attachments, or better yet, uplaod them to server and attach link
-				(
-					channel,
-					"Message Sent",
-					Color::BLURPLE,
-					vec![
-						("User", user.mention().to_string(), true),
-						("Content", event.message.content.clone(), false),
-					],
-				)
+				(channel, "Message Sent", Color::BLURPLE, vec![
+					("User", user.mention().to_string(), true),
+					("Content", event.message.content.clone(), false),
+				])
 			},
 			| GuildBanAdd(event) => {
 				let Some(channel) = get_channel_id(event.guild_id.get(), "BAN_CHANNEL_ID") else {
@@ -64,12 +59,11 @@ impl RawEventHandler for Handler {
 				};
 
 				// todo: get last banned user in the guild in order to get the banner info, banner info would only work if they use this bots ban command, discord ban command i dont think we can use for the info unless we use the audit log event
-				(
-					channel,
-					"User Banned",
-					Color::RED,
-					vec![("Banned User", event.user.mention().to_string(), true)],
-				)
+				(channel, "User Banned", Color::RED, vec![(
+					"Banned User",
+					event.user.mention().to_string(),
+					true,
+				)])
 			},
 			| _ => return,
 		};
