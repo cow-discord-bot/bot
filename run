@@ -3,7 +3,6 @@
 TIMESTAMP=$(date +"%d-%m-%y@%H-%M")
 LOG_DIR="./logs/$TIMESTAMP"
 
-mkdir -p "$LOG_DIR"
 mkdir -p "data"
 
 if [ "$1" = "release" ]; then
@@ -14,6 +13,8 @@ if [ "$1" = "release" ]; then
     fi
 
     CURRENT_DIR=$(pwd)
+
+    mkdir -p "$LOG_DIR"
 
     cd $CURRENT_DIR
     cargo run --bin bot "$@" 2>&1 | tee "$LOG_DIR/bot.log" &
