@@ -4,6 +4,7 @@ TIMESTAMP=$(date +"%d-%m-%y@%H-%M")
 LOG_DIR="./logs/$TIMESTAMP"
 
 mkdir -p "$LOG_DIR"
+mkdir -p "data"
 
 if [ "$1" = "release" ]; then
     NGINX_PATH=$(which nginx)
