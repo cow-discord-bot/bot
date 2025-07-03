@@ -1,5 +1,6 @@
 use std::fmt;
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use strsim::jaro_winkler;
 use tokio::task;
 
