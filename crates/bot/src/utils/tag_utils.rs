@@ -12,10 +12,10 @@ pub struct TagDb {
 }
 
 impl TagDb {
-	pub fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-		Ok(TagDb {
-			db: sled::open("data/tags")?,
-		})
+	pub fn new() -> Self {
+		TagDb {
+			db: sled::open("data/tags").unwrap(),
+		}
 	}
 
 	pub async fn create_tag(

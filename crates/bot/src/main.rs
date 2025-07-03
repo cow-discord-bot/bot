@@ -104,7 +104,7 @@ async fn main() {
 				println!("Logged in as {}", _ready.user.name);
 				poise::builtins::register_globally(ctx, &framework.options().commands).await?;
 				Ok(Data {
-					tag_db: Arc::new(TagDb::new().unwrap()),
+					tag_db: Arc::new(TagDb::new()),
 				})
 			})
 		})
