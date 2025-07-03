@@ -1,6 +1,7 @@
 use std::fmt;
 
 use sled::Db;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use strsim::jaro_winkler;
 
 use crate::Data;
