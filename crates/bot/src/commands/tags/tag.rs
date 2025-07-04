@@ -1,7 +1,7 @@
 use poise::CreateReply;
 use serenity::all::{CreateEmbed, CreateMessage};
 
-use crate::utils::embeds::create_error_embed;
+use crate::utils::embeds::ToEmbed;
 use crate::utils::tag_utils::get_data_and_id;
 use crate::{Context, Error};
 
@@ -37,7 +37,7 @@ pub async fn tag(
 				.await?;
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string()))).await?;
+			ctx.send(CreateReply::default().embed(e.to_embed())).await?;
 		}
 	}
 
@@ -68,7 +68,7 @@ async fn create(
 				.await?
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};
@@ -96,7 +96,7 @@ async fn delete(
 				.await?
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};
@@ -127,7 +127,7 @@ async fn edit(
 				.await?
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};
@@ -168,7 +168,7 @@ async fn list(ctx: Context<'_>) -> Result<(), Error> {
 		| Err(e) => {
 			ctx.send(
 				CreateReply::default()
-					.embed(create_error_embed(&e.to_string()))
+					.embed(e.to_embed())
 					.ephemeral(true),
 			)
 			.await?
@@ -191,7 +191,7 @@ async fn preview(
 				.await?
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};
@@ -220,7 +220,7 @@ async fn raw(
 				.await?
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};
@@ -247,13 +247,13 @@ async fn alias(
 					.await?
 				},
 				| Err(e) => {
-					ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+					ctx.send(CreateReply::default().embed(e.to_embed()))
 						.await?
 				},
 			}
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+			ctx.send(CreateReply::default().embed(e.to_embed()))
 				.await?
 		},
 	};

@@ -1,7 +1,7 @@
 use poise::CreateReply;
 use serenity::all::CreateMessage;
 
-use crate::utils::embeds::create_error_embed;
+use crate::utils::embeds::ToEmbed;
 use crate::utils::tag_utils::get_data_and_id;
 use crate::{Context, Error};
 
@@ -30,7 +30,7 @@ pub async fn dtag(
 				.await?;
 		},
 		| Err(e) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string()))).await?;
+			ctx.send(CreateReply::default().embed(e.to_embed())).await?;
 		}
 	}
 
