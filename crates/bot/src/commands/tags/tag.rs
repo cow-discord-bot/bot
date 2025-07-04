@@ -1,6 +1,5 @@
 use poise::CreateReply;
 use serenity::all::{CreateEmbed, CreateMessage};
-use tokio::time::Instant;
 
 use crate::utils::embeds::create_error_embed;
 use crate::utils::tag_utils::get_data_and_id;
@@ -18,7 +17,6 @@ pub async fn tag(
 	ctx: Context<'_>,
 	#[description = "Tag name"] name: String,
 ) -> Result<(), Error> {
-	let start = Instant::now();
 	let referenced_message = match &ctx {
 		| Context::Prefix(prefix_ctx) => prefix_ctx.msg.message_reference.clone(),
 		| _ => None,
@@ -26,25 +24,23 @@ pub async fn tag(
 
 	let (data, id) = get_data_and_id(ctx).await?;
 
-	if let Ok(Some((_name, content))) = data.tag_db.get_tag(&name, id).await {
-		let mut message = CreateMessage::default().content(content);
+	match data.tag_db.get_tag(&name, id).await {
+		| Ok(v) => {
+			let mut message = CreateMessage::default().content(v);
 
-		if let Some(msg_ref) = referenced_message {
-			message = message.reference_message(msg_ref);
+			if let Some(msg_ref) = referenced_message {
+				message = message.reference_message(msg_ref);
+			}
+
+			ctx.channel_id()
+				.send_message(ctx.serenity_context(), message)
+				.await?;
+		},
+		| Err(e) => {
+			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string()))).await?;
 		}
-
-		ctx.channel_id()
-			.send_message(ctx.serenity_context(), message)
-			.await?;
-	} else {
-		ctx.send(CreateReply::default().embed(create_error_embed(&format!(
-			"❌ Tag `{}` does not exist",
-			name.replace("`", "\\`")
-		))))
-		.await?;
 	}
 
-	println!("tag took {} ms", start.elapsed().as_millis());
 	Ok(())
 }
 
@@ -67,16 +63,16 @@ async fn create(
 	let (data, id) = get_data_and_id(ctx).await?;
 
 	match data.tag_db.create_tag(&name, &content, id).await {
-		| Ok(_) => {
+		| Ok(()) => {
 			ctx.send(CreateReply::default().content(format!("✅ Created tag `{}`", name)))
 				.await?
 		},
-		// todo catch error that tag already exists
 		| Err(e) => {
 			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
 				.await?
 		},
 	};
+
 	Ok(())
 }
 
@@ -95,22 +91,16 @@ async fn delete(
 	let (data, id) = get_data_and_id(ctx).await?;
 
 	match data.tag_db.delete_tag(&name, id).await {
-		| Ok(Some(fixed_name)) => {
-			ctx.send(CreateReply::default().content(format!("✅ Deleted tag `{}`", fixed_name)))
+		| Ok(name) => {
+			ctx.send(CreateReply::default().content(format!("✅ Deleted tag `{}`", name)))
 				.await?
-		},
-		| Ok(None) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&format!(
-				"❌ Tag `{}` does not exist",
-				name.replace("`", "\\`")
-			))))
-			.await?
 		},
 		| Err(e) => {
 			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
 				.await?
 		},
 	};
+
 	Ok(())
 }
 
@@ -132,22 +122,16 @@ async fn edit(
 	let (data, id) = get_data_and_id(ctx).await?;
 
 	match data.tag_db.edit_tag(&name, &content, id).await {
-		| Ok(Some(fixed_name)) => {
-			ctx.send(CreateReply::default().content(format!("✅ Updated tag `{}`", fixed_name)))
+		| Ok(name) => {
+			ctx.send(CreateReply::default().content(format!("✅ Updated tag `{}`", name)))
 				.await?
-		},
-		| Ok(None) => {
-			ctx.send(CreateReply::default().embed(create_error_embed(&format!(
-				"❌ Tag `{}` does not exist",
-				name.replace("`", "\\`")
-			))))
-			.await?
 		},
 		| Err(e) => {
 			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
 				.await?
 		},
 	};
+
 	Ok(())
 }
 
@@ -181,7 +165,6 @@ async fn list(ctx: Context<'_>) -> Result<(), Error> {
 			)
 			.await?
 		},
-		// TODO: catch error if table doesnt exist
 		| Err(e) => {
 			ctx.send(
 				CreateReply::default()
@@ -202,20 +185,17 @@ async fn preview(
 ) -> Result<(), Error> {
 	let (data, id) = get_data_and_id(ctx).await?;
 
-	if let Ok(Some((_name, content))) = data.tag_db.get_tag(&name, id).await {
-		ctx.send(CreateReply::default().content(content).ephemeral(true))
-			.await?;
-	} else {
-		ctx.send(
-			CreateReply::default()
-				.embed(create_error_embed(&format!(
-					"❌ Tag `{}` does not exist",
-					name.replace("`", "\\`")
-				)))
-				.ephemeral(true),
-		)
-		.await?;
-	}
+	match data.tag_db.get_tag(&name, id).await {
+		| Ok(content) => {
+			ctx.send(CreateReply::default().content(content).ephemeral(true))
+				.await?
+		},
+		| Err(e) => {
+			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+				.await?
+		},
+	};
+
 	Ok(())
 }
 
@@ -227,24 +207,23 @@ async fn raw(
 ) -> Result<(), Error> {
 	let (data, id) = get_data_and_id(ctx).await?;
 
-	if let Ok(Some((_name, mut content))) = data.tag_db.get_tag(&name, id).await {
-		content = content
-			.replace("`", "\\`")
+	match data.tag_db.get_tag(&name, id).await {
+		| Ok(content) => {
+			ctx.send(CreateReply::default().content(content.replace("`", "\\`")
 			.replace("*", "\\*")
 			.replace("_", "\\_")
 			.replace("~", "\\~")
 			.replace("#", "\\#")
 			.replace("<", "\\<")
 			.replace(">", "\\>")
-			.replace("|", "\\|");
-		ctx.send(CreateReply::default().content(content)).await?;
-	} else {
-		ctx.send(CreateReply::default().embed(create_error_embed(&format!(
-			"❌ Tag `{}` does not exist",
-			name.replace("`", "\\`")
-		))))
-		.await?;
-	}
+			.replace("|", "\\|")))
+				.await?
+		},
+		| Err(e) => {
+			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+				.await?
+		},
+	};
 
 	Ok(())
 }
@@ -258,25 +237,26 @@ async fn alias(
 ) -> Result<(), Error> {
 	let (data, id) = get_data_and_id(ctx).await?;
 
-	if let Ok(Some((_name, content))) = data.tag_db.get_tag(&name, id).await {
-		match data.tag_db.create_tag(&alias, &content, id).await {
-			| Ok(_) => {
-				ctx.send(
-					CreateReply::default().content(format!("✅ Created tag alias `{}`", alias)),
-				)
-				.await?
-			},
-			| Err(e) => {
-				ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+	match data.tag_db.get_tag(&name, id).await {
+		| Ok(content) => {
+			match data.tag_db.create_tag(&alias, &content, id).await {
+				| Ok(()) => {
+					ctx.send(
+						CreateReply::default().content(format!("✅ Created tag alias `{}`", alias)),
+					)
 					.await?
-			},
-		};
-	} else {
-		ctx.send(CreateReply::default().embed(create_error_embed(&format!(
-			"❌ Tag `{}` does not exist",
-			name
-		))))
-		.await?;
-	}
+				},
+				| Err(e) => {
+					ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+						.await?
+				},
+			}
+		},
+		| Err(e) => {
+			ctx.send(CreateReply::default().embed(create_error_embed(&e.to_string())))
+				.await?
+		},
+	};
+
 	Ok(())
 }
